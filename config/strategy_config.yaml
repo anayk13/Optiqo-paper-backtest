@@ -1,0 +1,33 @@
+# Define the operational mode: 'backtest' or 'live_ip'
+mode: live_ip
+
+strategy:
+  module: strategies.simple_test_strategy
+  class: SimpleTestStrategy
+  params:
+    trigger_price: 1500.0 
+    instrument_to_trade: "NSE_EQ_INFY"
+    trade_quantity: 100 
+
+broker:
+  slippage_percent: 0.1
+  fill_chance: 1.0
+  name: SimulatedBroker
+  account: paper123
+
+data:
+  mode: live_ip
+  csv_file: data/mock_ticks.csv 
+  delay: 0.01
+
+  live_config: # Configuration for live_ip mode (WebSocket endpoint)
+    uri: "ws://127.0.0.1:8888" # Ensure this points to your local mock server
+    instruments: ["NSE_FO_5210_1", "NSE_EQ_INFY", "BSE_EQ_TCS"]
+
+logging:
+  enabled: true
+  path: logs/orders.parquet 
+
+initial_cash: 1000000
+snapshot:
+  portfolio: data/portfolio_snapshot.parquet

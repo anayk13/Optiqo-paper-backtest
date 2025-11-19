@@ -1,0 +1,223 @@
+# Production Configuration for Multi-Strategy Trading Engine
+# Supports complex strategies like MBVC (Multi-Broker, Multi-Venue, Multi-Strategy)
+
+# System Configuration
+system:
+  name: "Production Trading Engine"
+  version: "1.0.0"
+  environment: "production"  # production, staging, development
+
+# Event Engine Configuration
+event_engine:
+  queue_size: 10000
+  max_handlers_per_event: 10
+  event_timeout: 30  # seconds
+
+# Strategy Manager Configuration
+strategy_manager:
+  max_strategies: 20
+  max_concurrent_strategies: 10
+  strategy_timeout: 300  # seconds
+  health_check_interval: 30  # seconds
+  max_errors_per_strategy: 5
+
+# Broker Configuration
+broker:
+  name: "SimulatedBroker"
+  account: "production_account"
+  slippage_percent: 0.1
+  fill_chance: 1.0
+  max_order_size: 10000
+  min_order_size: 1
+
+# Portfolio Configuration
+portfolio:
+  initial_cash: 10000000  # 10M for production
+  max_position_size: 1000000  # 1M per position
+  max_total_exposure: 0.8  # 80% of portfolio
+  risk_free_rate: 0.05  # 5% annual
+
+# Risk Management Configuration
+risk_management:
+  max_drawdown: 0.15  # 15% max drawdown
+  max_daily_loss: 0.05  # 5% max daily loss
+  max_position_concentration: 0.2  # 20% max per position
+  max_sector_exposure: 0.3  # 30% max per sector
+  stop_loss_enabled: true
+  take_profit_enabled: true
+  trailing_stop_enabled: true
+
+# Data Feed Configuration
+data:
+  mode: "live_ip"  # backtest, live_ip, hybrid
+  csv_file: "data/mock_ticks.csv"
+  delay: 0.01  # seconds for backtest
+  
+  # Live Data Configuration
+  live_config:
+    uri: "ws://127.0.0.1:8888"
+    instruments: 
+      - "NSE_FO_5210_1"  # NIFTY Futures
+      - "NSE_EQ_INFY"     # INFOSYS
+      - "BSE_EQ_TCS"      # TCS
+      - "NSE_EQ_RELIANCE" # Reliance
+      - "NSE_EQ_HDFC"     # HDFC Bank
+    reconnect_attempts: 10
+    reconnect_delay: 5  # seconds
+    heartbeat_interval: 30  # seconds
+
+# Strategy Configuration
+strategies:
+  # Default strategy parameters
+  default_params:
+    max_position_size: 1000
+    max_drawdown: 0.1
+    stop_loss_pct: 0.02
+    take_profit_pct: 0.04
+    data_window: 1000
+    
+  # Strategy-specific configurations
+  custom_strategies:
+    # Example: MBVC Strategy
+    mbvc_strategy:
+      enabled: true
+      class: "MBVCStrategy"
+      params:
+        max_brokers: 3
+        max_venues: 5
+        max_strategies: 10
+        rebalance_frequency: 300  # seconds
+        risk_budget: 0.1
+        
+    # Example: F&O Strategy
+    fno_strategy:
+      enabled: true
+      class: "FNOStrategy"
+      params:
+        expiry_days: 7
+        strike_range: 0.1
+        max_options_positions: 20
+        delta_threshold: 0.5
+        
+    # Example: Equity Strategy
+    equity_strategy:
+      enabled: true
+      class: "EquityStrategy"
+      params:
+        lookback_period: 20
+        momentum_threshold: 0.02
+        volume_threshold: 1000000
+        max_positions: 10
+
+# Logging Configuration
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  max_file_size: 10485760  # 10MB
+  backup_count: 5
+  console_output: true
+  file_output: true
+  
+  # Component-specific logging levels
+  components:
+    event_engine: "INFO"
+    strategy_manager: "DEBUG"
+    portfolio: "INFO"
+    risk_manager: "WARNING"
+    trade_executor: "INFO"
+    data_feed: "INFO"
+
+# Monitoring Configuration
+monitoring:
+  enabled: true
+  metrics_interval: 30  # seconds
+  alert_thresholds:
+    cpu_usage: 80  # percentage
+    memory_usage: 80  # percentage
+    error_rate: 0.05  # 5%
+    latency_p99: 1000  # milliseconds
+  
+  # Alert channels
+  alerts:
+    email:
+      enabled: false
+      smtp_server: "smtp.gmail.com"
+      smtp_port: 587
+      username: ""
+      password: ""
+      recipients: []
+    
+    webhook:
+      enabled: false
+      url: ""
+      timeout: 10
+
+# Performance Configuration
+performance:
+  enable_profiling: false
+  profile_output_dir: "logs/profiles"
+  memory_profiling: false
+  cpu_profiling: false
+  
+  # Optimization settings
+  optimization:
+    enable_parallel_processing: true
+    max_worker_threads: 4
+    enable_caching: true
+    cache_size: 1000
+
+# Security Configuration
+security:
+  enable_encryption: false
+  encryption_key: ""
+  enable_audit_logging: true
+  audit_log_file: "logs/audit.log"
+  
+  # API security (if applicable)
+  api:
+    enabled: false
+    port: 8080
+    authentication_required: true
+    rate_limiting: true
+    max_requests_per_minute: 100
+
+# Database Configuration (for future use)
+database:
+  enabled: false
+  type: "postgresql"  # postgresql, mysql, sqlite
+  host: "localhost"
+  port: 5432
+  database: "trading_engine"
+  username: ""
+  password: ""
+  connection_pool_size: 10
+  max_connections: 100
+
+# Backup Configuration
+backup:
+  enabled: true
+  frequency: "daily"  # daily, weekly, monthly
+  retention_days: 30
+  backup_dir: "backups"
+  compress: true
+  
+  # What to backup
+  include:
+    - "logs/"
+    - "config/"
+    - "strategies/"
+    - "data/"
+
+# Development/Testing Configuration
+development:
+  enable_debug_mode: false
+  enable_mock_data: false
+  enable_strategy_sandbox: true
+  sandbox_initial_cash: 100000
+  
+  # Testing parameters
+  testing:
+    enable_unit_tests: false
+    enable_integration_tests: false
+    test_data_dir: "test_data"
+    mock_broker: true
